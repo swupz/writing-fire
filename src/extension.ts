@@ -1,51 +1,46 @@
 import * as vscode from 'vscode';
 
 export function activate(context: vscode.ExtensionContext) {
-    console.log('Congratulations, your extension "code-on-fire" is now active!');
+    // 1. Create a state variable
+    let isEnabled = false;
 
-    // 1. Get the path to your local PNG
-    // Note: If you move the image to a top-level folder named 'media', 
-    // change the arguments to: context.extensionUri, 'media', 'fire_trail2.png'
-    const fireUri = vscode.Uri.joinPath(context.extensionUri, 'src', 'media', 'fire_trail6.png');
+    const fireUri = vscode.Uri.joinPath(context.extensionUri, 'media', 'fire_trail6.png');
 
-    // 2. The Event Listener
+    // 2. The Toggle Command
+    let toggleCommand = vscode.commands.registerCommand('writing-fire-extension.toggle', () => {
+        isEnabled = !isEnabled;
+        vscode.window.showInformationMessage(`Code on Fire is now ${isEnabled ? 'ON' : 'OFF'}!`);
+    });
+
+    // 3. The Event Listener
     let changeDisposable = vscode.workspace.onDidChangeTextDocument((event) => {
+        // Only run if the extension is enabled
+        if (!isEnabled) return;
+
         const editor = vscode.window.activeTextEditor;
-        if (!editor) return;
-        if (event.contentChanges.length === 0) return;
+        if (!editor || event.contentChanges.length === 0) return;
 
         const change = event.contentChanges[0];
-        const text = change.text;
-
-        if (text.length === 0) return;
+        if (change.text.length === 0) return;
 
         const startPos = change.range.start;
-        const endPos = startPos.translate(0, text.length);
-        const range = new vscode.Range(startPos, endPos);
+        const range = new vscode.Range(startPos, startPos.translate(0, change.text.length));
 
-        // 3. Create the Decoration
         const fireDecorationType = vscode.window.createTextEditorDecorationType({
             after: {
                 contentIconPath: fireUri,
                 width: '8px',
                 height: '13px',
-                // Pulls the image back over the letter
                 margin: '0 0 0 -8px',
-                // Adjust this value (-4px to -6px) to stop the "floating"
                 textDecoration: 'none; vertical-align: -2px; opacity: 0.8;'
             }, 
             rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed
         });
 
-        // 4. Apply and Fade
         editor.setDecorations(fireDecorationType, [range]);
-
-        setTimeout(() => {
-            fireDecorationType.dispose();
-        }, 400); 
+        setTimeout(() => fireDecorationType.dispose(), 400); 
     });
 
-    context.subscriptions.push(changeDisposable);
+    // Add both to subscriptions
+    context.subscriptions.push(toggleCommand, changeDisposable);
 }
-
-export function deactivate() {}

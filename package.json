@@ -1,6 +1,6 @@
 {
   "name": "writing-fire-extension",
-  "displayName": "writing_fire_extension",
+  "displayName": "writing-fire-extension",
   "description": "Writing fire code",
   "version": "0.0.1",
   "engines": {
@@ -10,14 +10,14 @@
     "Other"
   ],
   "activationEvents": [
-    "onStartupFinished"
+    "onCommand:writing-fire-extension.toggle"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "writing-fire-extension.helloWorld",
-        "title": "Hello World"
+        "command": "writing-fire-extension.toggle",
+        "title": "Toggle Absolute Fire"
       }
     ]
   },
