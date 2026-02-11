@@ -1,3 +1,3 @@
 # writing-fire-extension README
 
-Writing fire.
+Download the .vsix file and install it on vs code.
